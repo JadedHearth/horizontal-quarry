@@ -2,6 +2,10 @@
 -- Created by StarNinga
 
 local name = os.getComputerLabel()
+if type(name) == nil then
+	os.setComputerLabel("miner"..math.random(0, 1000)) -- change this to being assigned by the central computer once the rednet system is in place
+end
+
 local mineWidth = 20
 local mineLength = 40 -- to be removed once I get the wireless deactivation/activation in place
 
@@ -119,6 +123,13 @@ local function tryForwards()
 		print( name.." doesn't have enough fuel" )
 		returnSupplies()
 	end
+	local fuelLevel = turtle.getFuelLevel()
+	if fuelLevel <= 1 then
+		local selected = turtle.getSelectedSlot()
+		turtle.select(1)
+		turtle.refuel()
+		turtle.select(selected)
+	end
     turtle.digUp() 
     turtle.digDown()
 	while not turtle.forward() do
@@ -131,6 +142,7 @@ local function tryForwards()
 			sleep( 0.5 )
 		end
 	end
+
 	
 	xPos = xPos + xDir
 	zPos = zPos + zDir
@@ -148,6 +160,11 @@ local function turnRight()
 end
 
 function goTo( x, z, xd, zd )
+
+	local goToFuelNeeded = math.abs(xPos-x)+math.abs(zPos-z)
+	if turtle.getFuelLevel() <= goToFuelNeeded then
+		refuel(goToFuelNeeded)
+	end
 
 	if xPos > x then
 		while xDir ~= -1 do
