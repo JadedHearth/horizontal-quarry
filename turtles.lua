@@ -221,5 +221,5 @@ if (fuelLevel + fuelReady * 80) > (mineWidth * mineLength + (mineWidth * mineLen
 
 	print( "Mined "..(collected + unloaded).." items total." )
 else
-	print("Not enough fuel to start. (Add a minimum of 39 coal in the first slot)")
+	printError("Not enough fuel to start. (Add a minimum of 39 coal in the first slot)")
 end
