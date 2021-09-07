@@ -1,5 +1,5 @@
 -- Accompanying code for the monitoring system of turtles.lua, for the central computer.
--- Created by StarNinga
+-- Created by WoodenMaxim
 
 local turtleLocations = {}
 

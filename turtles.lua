@@ -1,5 +1,5 @@
 -- Turtle control program made for making large holes at a certain layer underground, and controlled remotely by a central computer
--- Created by StarNinga
+-- Created by WoodenMaxim
 
 local mineWidth = 20
 local mineLength = 40
