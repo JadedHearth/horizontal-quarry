@@ -1,45 +1,41 @@
 -- Turtle control program made for making large holes at a certain layer underground, and controlled remotely by a central computer
 -- Created by WoodenMaxim
 
-local mineWidth = 20
-local mineLength = 40
+local nMineWidth = 20
+local nMineLength = 40
 
-local unloaded = 0
-local collected = 0
+local nUnloaded = 0
+local nCollected = 0
 local xPos,zPos = 0,0
 local xDir,zDir = 0,1
-local stop = false
-local offline = false
+local bStop = false
 
-peripheral.find("modem", rednet.open)
+peripheral.find( "modem", rednet.open )
 local nControllerID = 0
-local name = ""
+local sName = ""
 if rednet.isOpen() then
-	rednet.host("turtleName", ""..os.getComputerID())
-	nControllerID, name = rednet.receive("turtleName")
-	os.setComputerLabel( name )
+	rednet.host( "turtleName", "" .. os.getComputerID() )
+	nControllerID, sName = rednet.receive("turtleName")
+	os.setComputerLabel(sName)
 else
 	printError("Turtle is not connected to rednet.")
 	os.setComputerLabel("Offline miner")
-	name = "Offline miner"
-	offline = true
+	sName = "Offline miner"
 end
 
 -- Filled in further down:
-local GoTo 
+local goTo 
 local turnRight
 local turnLeft
 local tryForwards
 
 -- implement for refueling as well later
-local function getItem( _item )
-	local b
-	for n=1,16 do
+local function getItem(_item)
+	for n = 1,16 do
 		local item = turtle.getItemDetail(n)
 		if item == nil then
 		elseif item.name == _item then
 			turtle.select(n)
-
 			break
 		end
 	end
@@ -49,16 +45,16 @@ end
 local function placeTorch()
 	if turtle.inspectDown() == false then
 		turtle.down()
-		local selected = turtle.getSelectedSlot()
-		local there, meta = turtle.inspectDown()
-		if there and meta.state.level == nil then
+		local nSelected = turtle.getSelectedSlot()
+		local bThere, aMeta = turtle.inspectDown()
+		if bThere and aMeta.state.level == nil then
 			turtle.up()
 			getItem("minecraft:torch")
 			turtle.placeDown()
-			turtle.select(selected)
-		elseif there and meta.state.level ~= nil then
-			there, meta = turtle.inspectUp()
-			if there and meta.state.level ~= nil then
+			turtle.select(nSelected)
+		elseif bThere and aMeta.state.level ~= nil then
+			bThere, aMeta = turtle.inspectUp()
+			if bThere and aMeta.state.level ~= nil then
 				printError("Could not place torch due to liquid present.")
 				turtle.up()
 			else
@@ -67,7 +63,7 @@ local function placeTorch()
 				turtle.up()
 				getItem("minecraft:torch")
 				turtle.placeDown()
-				turtle.select(selected)
+				turtle.select(nSelected)
 			end
 		else
 			getItem("minecraft:cobblestone")
@@ -75,15 +71,15 @@ local function placeTorch()
 			turtle.up()
 			getItem("minecraft:torch")
 			turtle.placeDown()
-			turtle.select(selected)
+			turtle.select(nSelected)
 		end
 	else
 		printError("Could not place torch due to liquid present.")
 	end
 end
 
-local function unload( _KeepOneFuelStack )
-	print( name .. " is unloading items..." )
+local function unload(_KeepOneFuelStack)
+	print( sName .. " is unloading items..." )
 	for n=1,16 do
 		local nCount = turtle.getItemCount(n)
 		if nCount > 0 then
@@ -95,23 +91,23 @@ local function unload( _KeepOneFuelStack )
 			end
 			if bDrop then
 				turtle.drop()
-				unloaded = unloaded + nCount
+				nUnloaded = nUnloaded + nCount
 			end
 		end
 	end
-	collected = 0
+	nCollected = 0
 	turtle.select(1)
 end
 
 local function returnSupplies()
 	local x,z,xd,zd = xPos,zPos,xDir,zDir
-	print( name .. " is returning to chest..." )
-	GoTo( 0,0,0,-1 )
+	print( sName .. " is returning to chest..." )
+	goTo(0, 0, 0, -1)
 
-	unload( true )
+	unload(true)
 
-	print( name .. " is resuming mining..." )
-	GoTo( x,z,xd,zd )
+	print( sName .. " is resuming mining..." )
+	goTo(x, z, xd, zd)
 end
 
 local function collect()	
@@ -125,15 +121,15 @@ local function collect()
 		nTotalItems = nTotalItems + nCount
 	end
 	
-	if nTotalItems > collected then
-		collected = nTotalItems
-		if math.fmod(collected + unloaded, 50) == 0 then
-			print( name .." mined "..(collected + unloaded).." items." )
+	if nTotalItems > nCollected then
+		nCollected = nTotalItems
+		if math.fmod( nCollected + nUnloaded, 50 ) == 0 then
+			print( sName .. " mined " .. (nCollected + nUnloaded) .. " items." )
 		end
 	end
 	
 	if bFull then
-		print( name .." has no empty slots left." )
+		print( sName .. " has no empty slots left." )
 		return false
 	end
 	return true
@@ -142,14 +138,14 @@ end
 local function tryForwards()
 	local nFuelLevel = turtle.getFuelLevel()
 	if nFuelLevel <= 1 then
-		local selected = turtle.getSelectedSlot()
+		local nSelected = turtle.getSelectedSlot()
 		turtle.select(1)
 		turtle.refuel(1)
-		turtle.select(selected)
+		turtle.select(nSelected)
 	end
 	turtle.digUp() 
-	local there, meta = turtle.inspectDown()
-	if there and meta.name ~= "minecraft:torch" then
+	local bThere, aMeta = turtle.inspectDown()
+	if bThere and aMeta.name ~= "minecraft:torch" then
 		turtle.digDown()
 	end
 	while not turtle.forward() do
@@ -159,7 +155,7 @@ local function tryForwards()
 				returnSupplies()
 			end
 		else
-			sleep( 0.5 )
+			sleep(0.5)
 		end
 	end
 
@@ -178,14 +174,13 @@ local function turnRight()
 	xDir, zDir = zDir, -xDir
 end
 
-function GoTo( x, z, xd, zd )
-
-	local fuelLevel = turtle.getFuelLevel()
-	if fuelLevel <= 121 then
-		local selected = turtle.getSelectedSlot()
+local function goTo(x, z, xd, zd)
+	local nFuelLevel = turtle.getFuelLevel()
+	if nFuelLevel <= 121 then
+		local nSelected = turtle.getSelectedSlot()
 		turtle.select(1)
 		turtle.refuel(2)
-		turtle.select(selected)
+		turtle.select(nSelected)
 	end
 
 	if zPos > z then
@@ -198,7 +193,7 @@ function GoTo( x, z, xd, zd )
 			elseif turtle.dig() or turtle.attack() then
 				collect()
 			else
-				sleep( 0.5 )
+				sleep(0.5)
 			end
 		end
 	elseif zPos < z then
@@ -211,7 +206,7 @@ function GoTo( x, z, xd, zd )
 			elseif turtle.dig() or turtle.attack() then
 				collect()
 			else
-				sleep( 0.5 )
+				sleep(0.5)
 			end
 		end	
 	end
@@ -226,7 +221,7 @@ function GoTo( x, z, xd, zd )
 			elseif turtle.dig() or turtle.attack() then
 				collect()
 			else
-				sleep( 0.5 )
+				sleep(0.5)
 			end
 		end
 	elseif xPos < x then
@@ -239,7 +234,7 @@ function GoTo( x, z, xd, zd )
 			elseif turtle.dig() or turtle.attack() then
 				collect()
 			else
-				sleep( 0.5 )
+				sleep(0.5)
 			end
 		end
 	end
@@ -249,70 +244,77 @@ function GoTo( x, z, xd, zd )
 	end
 end
 
-local function MineLayer()
+local function mineLayer()
 	local nExistingFuelLevel = turtle.getFuelLevel()
 	local nFuelReadyToLoad = turtle.getItemCount(1)
 	local nFullFuelLevel = (nExistingFuelLevel + nFuelReadyToLoad * 80) -- assuming that we're using coal, change 80 if another fuel souce is added
 	-- change 15 in the following equation for needed fuel to 14 once torches are implemented (as that's the amount of free slots)
 	-- or if the option to turn off torches is implemented then have it switch between 15 and 14 depending on if it's off or on
-	local nNeededFuel = mineWidth * mineLength + (mineWidth * mineLength * 3) / (15*64) * 2 * (mineWidth+mineLength)
+	local nNeededFuel = nMineWidth * nMineLength + (nMineWidth * nMineLength * 3) / (15*64) * 2 * (nMineWidth+nMineLength)
 	if nFullFuelLevel > nNeededFuel then
-		print( name .. " starting..." )
-		local alternate = 0
+		print( sName .. " starting..." )
+		local nAlternate = 0
 		turnLeft()
-		for n=1,mineLength do
-			for r=1,mineWidth-1 do
+		for n=1,nMineLength do
+			for r=1,nMineWidth-1 do
 				tryForwards()
 			end
-			if alternate == 0 then
+			if nAlternate == 0 then
 				turnRight()
 				tryForwards()
 				turnRight()
-				alternate = 1
-			elseif alternate == 1 then
+				nAlternate = 1
+			elseif nAlternate == 1 then
 				turnLeft()
 				tryForwards()
 				turnLeft()
-				alternate = 0
+				nAlternate = 0
 			end
 		end
-		print( name .. " returning to base..." )
-		GoTo( 0,0,0,-1 )
-		unload( false )
-		GoTo( 0,0,0,1 )
-		print( "Mined "..(collected + unloaded).." items total." )
+		print( sName .. " returning to base..." )
+		goTo(0, 0, 0, -1)
+		unload(false)
+		goTo(0, 0, 0, 1)
+		print( "Mined " .. ( nCollected + nUnloaded ) .. " items total." )
 	else
 		error("Not enough fuel to start. (Add a minimum of 39 coal in the first slot)", 0)
 	end
-	stop = true
+	bStop = true
 end
 
 local function controls()
 	local event, key, held = os.pullEvent("key")
 	if key == keys.k then
-		stop = true
+		bStop = true
 		print("K pressed, stopping program...")
+		goTo(0, 0, 0, -1)
+		unload(false)
+		goTo(0, 0, 0, 1)
+		print( "Mined "..(nCollected + nUnloaded).." items total." )
 	end
 end
 
 -- save location to the turtle (next thing to do)
 local function saveLocation()
 	sleep(10)
-	local status = {xPos, zPos, xDir, zDir}
+	local aStatus = {xPos, zPos, xDir, zDir}
 end
 
-local function untilStopped(func)
-	while not stop do
-		func()
+local function untilStopped(_func)
+	while not bStop do
+		_func()
 	end
 end
 
 -- Main loop
 parallel.waitForAny(
+	--function()
+	--	untilStopped(saveLocation)
+	--end,
 	function()
 		untilStopped(controls)
 	end,
 	function()
-		untilStopped(MineLayer)
+		untilStopped(mineLayer)
 	end
 )

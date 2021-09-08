@@ -3,10 +3,10 @@
 
 local turtleLocations = {}
 
-local stop = false
-peripheral.find("modem", rednet.open)
+local bStop = false
+peripheral.find( "modem", rednet.open )
 if rednet.isOpen() == false then 
-   error("Control comupter requires a modem.", 0) 
+   error( "Control comupter requires a modem.", 0 ) 
 end
 
 local function assignNames()
@@ -14,23 +14,23 @@ local function assignNames()
    Turtles = { rednet.lookup("turtleName") }
    if Turtles ~= aOldTurtles then
       for key,value in ipairs(Turtles) do
-         rednet.send(value, "turtle"..key, "turtleName")
+         rednet.send( value, "turtle"..key, "turtleName" )
       end
    end
    sleep(4)
 end
 
 local function controls()
-   local event, key, held = os.pullEvent("key")
+   local sEvent, key = os.pullEvent("key")
     if key == keys.k then
-      stop = true
+      bStop = true
       print("K pressed, stopping program...")
     end
 end
 
-local function untilKill(func)
-   while not stop do
-       func()
+local function untilKill(_func)
+   while not bStop do
+       _func()
    end
 end
 
