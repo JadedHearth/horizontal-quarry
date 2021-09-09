@@ -24,7 +24,7 @@ else
 end
 
 -- Filled in further down:
-local goTo 
+local GoTo
 local turnRight
 local turnLeft
 local tryForwards
@@ -102,12 +102,12 @@ end
 local function returnSupplies()
 	local x,z,xd,zd = xPos,zPos,xDir,zDir
 	print( sName .. " is returning to chest..." )
-	goTo(0, 0, 0, -1)
+	GoTo(0, 0, 0, -1)
 
 	unload(true)
 
 	print( sName .. " is resuming mining..." )
-	goTo(x, z, xd, zd)
+	GoTo(x, z, xd, zd)
 end
 
 local function collect()	
@@ -174,7 +174,7 @@ local function turnRight()
 	xDir, zDir = zDir, -xDir
 end
 
-local function goTo(x, z, xd, zd)
+function GoTo(x, z, xd, zd)
 	local nFuelLevel = turtle.getFuelLevel()
 	if nFuelLevel <= 121 then
 		local nSelected = turtle.getSelectedSlot()
@@ -272,12 +272,12 @@ local function mineLayer()
 			end
 		end
 		print( sName .. " returning to base..." )
-		goTo(0, 0, 0, -1)
+		GoTo(0, 0, 0, -1)
 		unload(false)
-		goTo(0, 0, 0, 1)
+		GoTo(0, 0, 0, 1)
 		print( "Mined " .. ( nCollected + nUnloaded ) .. " items total." )
 	else
-		error("Not enough fuel to start. (Add a minimum of 39 coal in the first slot)", 0)
+		error("Not enough fuel to start. (Add a minimum of ".. math.floor(nNeededFuel/ 80) .." coal in the first slot)", 0)
 	end
 	bStop = true
 end
@@ -287,9 +287,9 @@ local function controls()
 	if key == keys.k then
 		bStop = true
 		print("K pressed, stopping program...")
-		goTo(0, 0, 0, -1)
+		GoTo(0, 0, 0, -1)
 		unload(false)
-		goTo(0, 0, 0, 1)
+		GoTo(0, 0, 0, 1)
 		print( "Mined "..(nCollected + nUnloaded).." items total." )
 	end
 end
